@@ -76,8 +76,6 @@ After installation, launch "Personal Finance Manager" from your application menu
 
 ## License
 
-[*(Optional: Add your license information here, e.g., "This project is licensed under the MIT License." or remove this section if you don't want to specify a license)*]
-
 ## Author
 
 Made by Sufyaan
