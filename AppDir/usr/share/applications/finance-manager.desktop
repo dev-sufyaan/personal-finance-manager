@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Personal Finance Manager
+GenericName=Finance Application
+Comment=Manage your personal finances.
+Exec=usr/bin/personal-finance-manager
+Icon=finance-manager-icon # Icon name without extension
+Terminal=false
+Type=Application
+Categories=Office;Finance;

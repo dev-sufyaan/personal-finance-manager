@@ -1,0 +1,6 @@
+Food
+Other
+Petrol
+Salary
+Savings
+Utilities

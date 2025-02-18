@@ -1,0 +1,10 @@
+Package: personal-finance-manager
+Version: 1.0.0
+Architecture: all
+Maintainer: Ken Sufyaan <dev.sufyaan@gmail.com>
+Installed-Size: <replace_with_calculated_size>  # You MUST replace this with the calculated size
+Section: office
+Priority: optional
+Description: Personal Finance Manager Application
+ A simple and user-friendly application to manage personal finances.
+ Long description can go here, indented with spaces.
