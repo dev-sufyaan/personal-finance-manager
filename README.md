@@ -86,4 +86,3 @@ Copyright © 2025 Sufyaan. All rights reserved.
 
 ---
 
-**Note:** Replace `2025` in the Copyright section with the current year. You can also customize the description, features, and license sections as needed to better reflect your application.
