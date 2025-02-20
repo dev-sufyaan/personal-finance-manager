@@ -4,12 +4,9 @@ import csv
 import datetime
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side
-from ttkthemes import ThemedTk  # Import themed tk
+from ttkthemes import ThemedTk
 
-
-# --- Data Handling Module ---
 class Transaction:
-    """Represents a financial transaction with categories and notes, and transaction mode (Online/Cash)."""
     def __init__(self, date, transaction_type, category, reason, amount, notes="", mode="Online"):
         self.date = date
         self.transaction_type = transaction_type
@@ -23,7 +20,6 @@ class Transaction:
         return f"{self.date},{self.transaction_type},{self.category},{self.reason},{self.amount},{self.notes},{self.mode}"
 
 def save_transactions_to_csv(transactions, filename="transactions.csv"):
-    """Saves transactions to CSV."""
     try:
         with open(filename, 'w', newline='') as csvfile:
             csv_writer = csv.writer(csvfile)
@@ -34,7 +30,6 @@ def save_transactions_to_csv(transactions, filename="transactions.csv"):
         messagebox.showerror("Error", f"Error saving transactions: {e}")
 
 def load_transactions_from_csv(filename="transactions.csv"):
-    """Loads transactions from CSV."""
     transactions = []
     try:
         with open(filename, 'r') as csvfile:
@@ -73,7 +68,6 @@ def load_transactions_from_csv(filename="transactions.csv"):
     return transactions
 
 def export_transactions_to_xlsx(transactions, filename):
-    """Exports transactions to XLSX."""
     try:
         workbook = openpyxl.Workbook()
         sheet = workbook.active
@@ -97,39 +91,30 @@ def export_transactions_to_xlsx(transactions, filename):
     except Exception as e:
         messagebox.showerror("Error", f"Error exporting to XLSX: {e}")
 
-# --- GUI Application Module ---
-class FinanceApp(ThemedTk):  # Inherit from ThemedTk
+class FinanceApp(ThemedTk):
     def __init__(self):
-        super().__init__(theme="clam") # Set the theme here
+        super().__init__(theme="clam")
         self.title("Personal Finance Manager - Advanced")
         self.transactions = load_transactions_from_csv()
         self.current_balance = self.calculate_balance()
         self.categories = self.load_categories()
         self.filtered_transactions = list(self.transactions)
 
-        self.init_styles() # Initialize styles
+        self.init_styles()
         self.init_ui()
         self.update_transaction_tree(self.filtered_transactions)
 
     def init_styles(self):
-        """Defines and configures ttk styles for consistent look."""
         style = ttk.Style(self)
-        # Configure default font for all ttk widgets
-        style.configure('TLabel', font=('Segoe UI', 10))
-        style.configure('TButton', font=('Segoe UI', 10))
-        style.configure('TRadiobutton', font=('Segoe UI', 10))
-        style.configure('TCombobox', font=('Segoe UI', 10))
-        style.configure('Treeview.Heading', font=('Segoe UI', 10, 'bold'))
-
-        # Style for LabelFrames
-        style.configure('TLabelframe.Label', font=('Segoe UI', 10, 'bold'))
-
-        # Bold style for summary labels
-        style.configure('Bold.TLabel', font=('Segoe UI', 10, 'bold'))
-
+        style.configure('TLabel', font=('Helvetica', 10))
+        style.configure('TButton', font=('Helvetica', 10))
+        style.configure('TRadiobutton', font=('Helvetica', 10))
+        style.configure('TCombobox', font=('Helvetica', 10))
+        style.configure('Treeview.Heading', font=('Helvetica', 10, 'bold'))
+        style.configure('TLabelframe.Label', font=('Helvetica', 10, 'bold'))
+        style.configure('Bold.TLabel', font=('Helvetica', 10, 'bold'))
 
     def load_categories(self, filename="categories.txt"):
-        """Loads categories from file or defaults."""
         try:
             with open(filename, 'r') as f:
                 categories = [line.strip() for line in f.readlines()]
@@ -143,7 +128,6 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
             return ["Food", "Utilities", "Salary", "Entertainment", "Transportation", "Other"]
 
     def save_categories(self, categories, filename="categories.txt"):
-        """Saves categories to file."""
         try:
             with open(filename, 'w') as f:
                 for category in categories:
@@ -152,68 +136,55 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
             messagebox.showerror("Error", f"Error saving categories: {e}")
 
     def init_ui(self):
-        # --- Input Frame ---
         input_frame = ttk.LabelFrame(self, text="Add New Transaction")
         input_frame.grid(row=0, column=0, padx=10, pady=10, sticky=tk.NSEW)
 
-        input_field_width = 20  # Consistent width for input fields
-
-        # Date
+        input_field_width = 20
         ttk.Label(input_frame, text="Date (YYYY-MM-DD):").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
         self.date_entry = ttk.Entry(input_frame, width=input_field_width)
         self.date_entry.grid(row=0, column=1, padx=5, pady=5, sticky=tk.W)
         self.date_entry.insert(0, datetime.date.today().strftime("%Y-%m-%d"))
 
-        # Type
         ttk.Label(input_frame, text="Type:").grid(row=1, column=0, padx=5, pady=5, sticky=tk.W)
         self.type_var = tk.StringVar(value="Credit")
-        type_frame = ttk.Frame(input_frame) # Frame to group radio buttons
+        type_frame = ttk.Frame(input_frame)
         type_frame.grid(row=1, column=1, padx=5, pady=5, sticky=tk.W)
         type_options = ["Credit", "Debit"]
         for i, option in enumerate(type_options):
             ttk.Radiobutton(type_frame, text=option, variable=self.type_var, value=option).pack(side=tk.LEFT, padx=5)
 
-        # Mode (Online/Cash)
         ttk.Label(input_frame, text="Mode:").grid(row=2, column=0, padx=5, pady=5, sticky=tk.W)
         self.mode_var = tk.StringVar(value="Online")
-        mode_frame = ttk.Frame(input_frame) # Frame to group mode radio buttons
+        mode_frame = ttk.Frame(input_frame)
         mode_frame.grid(row=2, column=1, padx=5, pady=5, sticky=tk.W)
         mode_options = ["Online", "Cash"]
         for i, option in enumerate(mode_options):
             ttk.Radiobutton(mode_frame, text=option, variable=self.mode_var, value=option).pack(side=tk.LEFT, padx=5)
 
-
-        # Category
         ttk.Label(input_frame, text="Category:").grid(row=3, column=0, padx=5, pady=5, sticky=tk.W)
         self.category_var = tk.StringVar()
         self.category_combo = ttk.Combobox(input_frame, textvariable=self.category_var, values=self.categories, width=input_field_width-3)
         self.category_combo.grid(row=3, column=1, padx=5, pady=5, sticky=tk.W)
         self.category_combo.set(self.categories[0] if self.categories else "")
 
-        # Reason
         ttk.Label(input_frame, text="Reason:").grid(row=4, column=0, padx=5, pady=5, sticky=tk.W)
         self.reason_entry = ttk.Entry(input_frame, width=input_field_width)
         self.reason_entry.grid(row=4, column=1, padx=5, pady=5, sticky=tk.W)
 
-        # Amount
         ttk.Label(input_frame, text="Amount:").grid(row=5, column=0, padx=5, pady=5, sticky=tk.W)
         self.amount_entry = ttk.Entry(input_frame, width=input_field_width)
         self.amount_entry.grid(row=5, column=1, padx=5, pady=5, sticky=tk.W)
 
-        # Notes
         ttk.Label(input_frame, text="Notes:").grid(row=6, column=0, padx=5, pady=5, sticky=tk.W)
         self.notes_entry = tk.Text(input_frame, height=2, width=input_field_width)
         self.notes_entry.grid(row=6, column=1, padx=5, pady=5, sticky=tk.W)
 
-        # Add Transaction Button
         add_button = ttk.Button(input_frame, text="Add Transaction", command=self.add_transaction)
         add_button.grid(row=7, column=0, columnspan=2, pady=10)
 
-        # --- Balance & Summary Frame ---
         summary_frame = ttk.LabelFrame(self, text="Account Summary")
         summary_frame.grid(row=0, column=1, padx=10, pady=10, sticky=tk.N)
 
-        # Balance Labels - using grid for layout
         ttk.Label(summary_frame, text="Total Balance:", style='Bold.TLabel').grid(row=0, column=0, padx=5, pady=2, sticky=tk.W)
         self.balance_label = ttk.Label(summary_frame, text=f"₹{self.current_balance:.2f}")
         self.balance_label.grid(row=0, column=1, padx=5, pady=2, sticky=tk.W)
@@ -250,15 +221,11 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
         self.cash_debits_label = ttk.Label(summary_frame, text="₹0.00")
         self.cash_debits_label.grid(row=5, column=3, padx=5, pady=2, sticky=tk.W)
 
-
         self.update_summary_labels()
 
-
-        # --- Filter Frame ---
         filter_frame = ttk.LabelFrame(self, text="Filter Transactions")
         filter_frame.grid(row=1, column=0, padx=10, pady=5, sticky=tk.NSEW)
 
-        # Date Range Filter
         ttk.Label(filter_frame, text="Start Date:").grid(row=0, column=0, padx=5, pady=2, sticky=tk.W)
         self.filter_start_date_entry = ttk.Entry(filter_frame, width=12)
         self.filter_start_date_entry.grid(row=0, column=1, padx=5, pady=2, sticky=tk.W)
@@ -269,28 +236,24 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
         self.filter_end_date_entry.grid(row=0, column=3, padx=5, pady=2, sticky=tk.W)
         self.filter_end_date_entry.insert(0, datetime.date.today().strftime("%Y-%m-%d"))
 
-        # Type Filter
         ttk.Label(filter_frame, text="Type:").grid(row=1, column=0, padx=5, pady=2, sticky=tk.W)
         self.filter_type_var = tk.StringVar(value="All")
         filter_type_options = ["All", "Credit", "Debit"]
         filter_type_combo = ttk.Combobox(filter_frame, textvariable=self.filter_type_var, values=filter_type_options, width=8)
         filter_type_combo.grid(row=1, column=1, padx=5, pady=2, sticky=tk.W)
 
-        # Mode Filter
         ttk.Label(filter_frame, text="Mode:").grid(row=1, column=2, padx=5, pady=2, sticky=tk.W)
         self.filter_mode_var = tk.StringVar(value="All")
         filter_mode_options = ["All", "Online", "Cash"]
         filter_mode_combo = ttk.Combobox(filter_frame, textvariable=self.filter_mode_var, values=filter_mode_options, width=8)
         filter_mode_combo.grid(row=1, column=3, padx=5, pady=2, sticky=tk.W)
 
-        # Category Filter
         ttk.Label(filter_frame, text="Category:").grid(row=2, column=0, padx=5, pady=2, sticky=tk.W)
         self.filter_category_var = tk.StringVar(value="All")
         filter_category_options = ["All"] + self.categories
         filter_category_combo = ttk.Combobox(filter_frame, textvariable=self.filter_category_var, values=filter_category_options, width=12)
         filter_category_combo.grid(row=2, column=1, padx=5, pady=2, sticky=tk.W)
 
-        # Search Filter
         ttk.Label(filter_frame, text="Search:").grid(row=3, column=0, padx=5, pady=2, sticky=tk.W)
         self.search_entry = ttk.Entry(filter_frame, width=25)
         self.search_entry.grid(row=3, column=1, columnspan=3, padx=5, pady=2, sticky=tk.W+tk.E)
@@ -301,13 +264,11 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
         clear_filter_button = ttk.Button(filter_frame, text="Clear Filters", command=self.clear_filters)
         clear_filter_button.grid(row=4, column=2, columnspan=2, pady=5)
 
-
-        # --- Transaction History Frame ---
         history_frame = ttk.LabelFrame(self, text="Transaction History")
         history_frame.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky=tk.NSEW)
-        self.grid_rowconfigure(2, weight=1) # Allow history frame to expand vertically
-        self.grid_columnconfigure(0, weight=1) # Allow history frame to expand horizontally
-        self.grid_columnconfigure(1, weight=1) # Allow history frame to expand horizontally
+        self.grid_rowconfigure(2, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
 
         self.tree = ttk.Treeview(history_frame, columns=('Date', 'Type', 'Category', 'Reason', 'Amount', 'Notes', 'Mode'), show='headings')
         self.tree.heading('Date', text='Date')
@@ -317,7 +278,7 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
         self.tree.heading('Amount', text='Amount')
         self.tree.heading('Notes', text='Notes')
         self.tree.heading('Mode', text='Mode')
-        self.tree.column('Date', anchor=tk.W, width=100) # Adjust column widths as needed
+        self.tree.column('Date', anchor=tk.W, width=100)
         self.tree.column('Type', anchor=tk.W, width=80)
         self.tree.column('Category', anchor=tk.W, width=120)
         self.tree.column('Reason', anchor=tk.W, width=150)
@@ -327,7 +288,6 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
 
         self.tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # --- Action Buttons Frame ---
         action_buttons_frame = ttk.Frame(self)
         action_buttons_frame.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky=tk.EW)
 
@@ -342,22 +302,17 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
         manage_categories_button = ttk.Button(action_buttons_frame, text="Manage Categories", command=self.manage_categories_dialog)
         manage_categories_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-
-        # --- Status Bar ---
         self.status_bar = tk.StringVar()
         status_label = ttk.Label(self, textvariable=self.status_bar, relief=tk.SUNKEN, anchor=tk.W)
         status_label.grid(row=4, column=0, columnspan=2, sticky=tk.EW, padx=10, pady=5)
         current_year = datetime.datetime.now().year
         self.status_bar.set(f"Ready | Made by Sufyaan | Copyright {current_year}")
 
-        # Make the main window resizable
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.rowconfigure(2, weight=1)
 
-
     def validate_input(self, date_str, amount_str, reason_str, category_str):
-        """Validates input fields."""
         if not date_str or not amount_str or not reason_str or not category_str:
             messagebox.showerror("Input Error", "Date, Category, Reason, and Amount are required.")
             return False
@@ -376,12 +331,10 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
                 return False
         except ValueError:
             messagebox.showerror("Input Error", "Invalid amount. Enter a numeric value.")
-            return True # corrected from return False to True, as it should return True if validation passes
+            return False
         return True
 
-
     def add_transaction(self):
-        """Adds a new transaction."""
         date_str = self.date_entry.get()
         transaction_type = self.type_var.get()
         category = self.category_var.get()
@@ -399,9 +352,7 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
             self.clear_input_fields()
             self.status_bar.set("Transaction added successfully.")
 
-
     def edit_transaction(self):
-        """Edits a selected transaction."""
         selected_item = self.tree.selection()
         if not selected_item:
             messagebox.showinfo("Info", "Select a transaction to edit.")
@@ -413,45 +364,38 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
         edit_window = tk.Toplevel(self)
         edit_window.title("Edit Transaction")
 
-        # Date
         ttk.Label(edit_window, text="Date (YYYY-MM-DD):").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
         date_entry_edit = ttk.Entry(edit_window)
         date_entry_edit.grid(row=0, column=1, padx=5, pady=5, sticky=tk.W)
         date_entry_edit.insert(0, old_transaction.date)
 
-        # Type
         ttk.Label(edit_window, text="Type:").grid(row=1, column=0, padx=5, pady=5, sticky=tk.W)
         type_var_edit = tk.StringVar(value=old_transaction.transaction_type)
         type_options = ["Credit", "Debit"]
         for i, option in enumerate(type_options):
             ttk.Radiobutton(edit_window, text=option, variable=type_var_edit, value=option).grid(row=1, column=i+1, padx=5, pady=5, sticky=tk.W)
 
-        # Mode
         ttk.Label(edit_window, text="Mode:").grid(row=2, column=0, padx=5, pady=5, sticky=tk.W)
         mode_var_edit = tk.StringVar(value=old_transaction.mode)
         mode_options = ["Online", "Cash"]
         for i, option in enumerate(mode_options):
             ttk.Radiobutton(edit_window, text=option, variable=mode_var_edit, value=option).grid(row=2, column=i+1, padx=5, pady=5, sticky=tk.W)
 
-        # Category
         ttk.Label(edit_window, text="Category:").grid(row=3, column=0, padx=5, pady=5, sticky=tk.W)
         category_var_edit = tk.StringVar(value=old_transaction.category)
         category_combo_edit = ttk.Combobox(edit_window, textvariable=category_var_edit, values=self.categories)
         category_combo_edit.grid(row=3, column=1, columnspan=2, padx=5, pady=5, sticky=tk.W+tk.E)
 
-        # Reason
         ttk.Label(edit_window, text="Reason:").grid(row=4, column=0, padx=5, pady=5, sticky=tk.W)
         reason_entry_edit = ttk.Entry(edit_window)
         reason_entry_edit.grid(row=4, column=1, padx=5, pady=5, sticky=tk.W)
         reason_entry_edit.insert(0, old_transaction.reason)
 
-        # Amount
         ttk.Label(edit_window, text="Amount:").grid(row=5, column=0, padx=5, pady=5, sticky=tk.W)
         amount_entry_edit = ttk.Entry(edit_window)
         amount_entry_edit.grid(row=5, column=1, padx=5, pady=5, sticky=tk.W)
         amount_entry_edit.insert(0, str(old_transaction.amount))
 
-        # Notes
         ttk.Label(edit_window, text="Notes:").grid(row=6, column=0, padx=5, pady=5, sticky=tk.W)
         notes_entry_edit = tk.Text(edit_window, height=2, width=20)
         notes_entry_edit.grid(row=6, column=1, columnspan=2, padx=5, pady=5, sticky=tk.W+tk.E)
@@ -479,9 +423,7 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
 
         ttk.Button(edit_window, text="Save Changes", command=save_edit).grid(row=7, column=0, columnspan=2, pady=10)
 
-
     def delete_transaction(self):
-        """Deletes a selected transaction."""
         selected_item = self.tree.selection()
         if not selected_item:
             messagebox.showinfo("Info", "Select a transaction to delete.")
@@ -496,7 +438,6 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
             self.status_bar.set("Transaction deleted.")
 
     def clear_all_transactions(self):
-        """Clears all transactions after confirmation."""
         if messagebox.askyesno("Confirm Clear All", "Are you sure you want to delete ALL transactions? This cannot be undone."):
             self.transactions = []
             self.save_and_update()
@@ -504,14 +445,12 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
             self.status_bar.set("All transactions cleared.")
 
     def export_data(self):
-        """Exports data to XLSX."""
         filename = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")])
         if filename:
             export_transactions_to_xlsx(self.transactions, filename)
             self.status_bar.set(f"Transactions exported to {filename}")
 
     def calculate_balance(self, transactions=None, mode=None):
-        """Calculates balance, optionally by mode."""
         if transactions is None:
             transactions = self.transactions
         if mode:
@@ -525,7 +464,6 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
         return balance
 
     def calculate_summary(self, transactions=None):
-        """Calculates transaction summary."""
         if transactions is None:
             transactions = self.transactions
         total_credits, total_debits = 0, 0
@@ -547,9 +485,7 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
                     cash_debits += transaction.amount
         return total_credits, total_debits, online_credits, online_debits, cash_credits, cash_debits
 
-
     def update_summary_labels(self, transactions=None):
-        """Updates summary labels in GUI."""
         if transactions is None:
             transactions = self.transactions
         total_credits, total_debits, online_credits, online_debits, cash_credits, cash_debits = self.calculate_summary(transactions)
@@ -567,23 +503,19 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
         self.cash_credits_label.config(text=f"₹{cash_credits:.2f}")
         self.cash_debits_label.config(text=f"₹{cash_debits:.2f}")
 
-
     def save_and_update(self):
-        """Saves, updates balance, summary, and transaction tree."""
         save_transactions_to_csv(self.transactions)
         self.current_balance = self.calculate_balance()
         self.update_summary_labels()
         self.apply_filters()
 
     def update_transaction_tree(self, transactions_to_display):
-        """Updates transaction Treeview."""
         for item in self.tree.get_children():
             self.tree.delete(item)
         for transaction in transactions_to_display:
             self.tree.insert('', tk.END, values=(transaction.date, transaction.transaction_type, transaction.category, transaction.reason, f"₹{transaction.amount:.2f}", transaction.notes, transaction.mode))
 
     def clear_input_fields(self):
-        """Clears input fields in 'Add Transaction' frame."""
         self.date_entry.delete(0, tk.END)
         self.date_entry.insert(0, datetime.date.today().strftime("%Y-%m-%d"))
         self.category_combo.set(self.categories[0] if self.categories else "")
@@ -593,7 +525,6 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
         self.mode_var.set("Online")
 
     def apply_filters(self):
-        """Applies filters and updates transaction tree."""
         start_date_str = self.filter_start_date_entry.get()
         end_date_str = self.filter_end_date_entry.get()
         filter_type = self.filter_type_var.get()
@@ -625,7 +556,6 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
         self.status_bar.set(f"Showing {len(self.filtered_transactions)} transactions.")
 
     def clear_filters(self):
-        """Clears all filters."""
         self.filter_start_date_entry.delete(0, tk.END)
         self.filter_start_date_entry.insert(0, (datetime.date.today() - datetime.timedelta(days=30)).strftime("%Y-%m-%d"))
         self.filter_end_date_entry.delete(0, tk.END)
@@ -637,9 +567,7 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
         self.apply_filters()
         self.status_bar.set("Filters cleared. Showing all transactions.")
 
-
     def manage_categories_dialog(self):
-        """Opens dialog to manage categories."""
         category_window = tk.Toplevel(self)
         category_window.title("Manage Categories")
 
@@ -666,7 +594,6 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
         delete_category_button.pack(side=tk.LEFT, padx=5)
 
     def add_category(self):
-        """Adds a new category."""
         new_category = self.new_category_entry.get().strip()
         if new_category and new_category not in self.categories:
             self.categories.append(new_category)
@@ -682,7 +609,6 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
             messagebox.showwarning("Category Input", "Category already exists.")
 
     def delete_category(self):
-        """Deletes a category."""
         selected_index = self.category_listbox.curselection()
         if selected_index:
             category_to_delete = self.category_listbox.get(selected_index[0])
@@ -697,8 +623,6 @@ class FinanceApp(ThemedTk):  # Inherit from ThemedTk
                     self.category_var.set(self.categories[0] if self.categories else "")
                     self.apply_filters()
 
-
-# --- Main Application ---
 if __name__ == "__main__":
     app = FinanceApp()
     app.mainloop()
